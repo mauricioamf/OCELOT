@@ -29,7 +29,3 @@ The folder `manuscript/`contains the code and data used in the manuscript for ge
 If you use OCELOT, please cite:
 
 > Ferreira et al. _Rational design of metabolic engineering strategies based on modulating the expression of transcription factors_. bioRxiv (2026). [DOI: pending](https://doi.org/)
-
-## Why the name "CORAL"?
-
-This software was named after the short-tailed coral snake, _Micrurus frontalis_, found in South America. This snake has fossorial habits, meaning it digs soil and stays _underground_.
