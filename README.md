@@ -16,7 +16,7 @@ The **O**ptimization **C**oupling **E**xpression **L**andscape **o**f **T**ransc
 
 ### How to install:
 
-* Clone the repository in the desired directory or download the [the latest release](https://github.com/mauricioamf/OCELOT/releases) as a ZIP file.
+* Clone the repository in the desired directory or download the [the latest release](https://github.com/mauricioamf/OCELOT/releases) as a ZIP file. Add folder to MATLAB path before running the code.
 
 ## How to use
 
