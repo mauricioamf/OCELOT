@@ -1,0 +1,130 @@
+function wt = runWTThresholdSelection(modelWT_FBA, biomass_idx, reg, protectedRxnIdx, params)
+    y_all_struct = struct();
+    z_struct = struct();
+    target_expr_struct = struct();
+    threshold_names = cell(numel(reg.threshold_values), 1);
+
+    for t = 1:numel(reg.threshold_values)
+        thr = reg.threshold_values(t);
+        state = buildThresholdState(reg, thr, params.thresholdSource);
+
+        y_rxn = reg.gene_to_rxn_map * state.y_tgt;
+        y_rxn = replaceInfWithFinite(y_rxn);
+
+        T = array2table(y_rxn, 'RowNames', modelWT_FBA.rxns, 'VariableNames', {'WT'});
+        tau = max(abs(T{:,'WT'}));
+        if tau == 0, tau = 1; end
+        T = array2table(T{:,:} ./ tau, 'RowNames', modelWT_FBA.rxns, 'VariableNames', {'WT'});
+
+        name = matlab.lang.makeValidName(sprintf('thr_expr_%g', thr));
+        threshold_names{t} = name;
+        y_all_struct.(name) = T;
+        z_struct.(name) = state.z_bin;
+        target_expr_struct.(name) = state.target_exp_hat;
+    end
+
+    WT_results = struct();
+    infeas_count = 0;
+
+    for tr = 1:numel(threshold_names)
+        threshold_name = threshold_names{tr};
+        fprintf('\n--- WT simulation for threshold: %s ---\n', threshold_name);
+
+        y_all_loop = y_all_struct.(threshold_name);
+        yWT = y_all_loop{:,'WT'};
+        target_exp_hat = target_expr_struct.(threshold_name);
+
+        try
+            [biomass, gp_WT, result_WT, kappa] = solveProblemWithScaledBounds( ...
+                modelWT_FBA, biomass_idx, yWT, reg.gene_to_rxn_map, protectedRxnIdx, ...
+                params.mu, params.kappaStart, params.kappaMin, params.kappaDecay);
+
+            R = struct();
+            R.biomass = biomass;
+            R.model = gp_WT;
+            R.result = result_WT;
+            R.kappa = kappa;
+            R.target_expr = array2table(target_exp_hat, ...
+                'VariableNames', {threshold_name}, ...
+                'RowNames', reg.beta_df_valid.Properties.RowNames);
+            WT_results.(threshold_name) = R;
+            infeas_count = 0;
+        catch
+            infeas_count = infeas_count + 1;
+            warning('No feasible solution found for %s.', threshold_name);
+
+            R = struct();
+            R.biomass = NaN;
+            R.model = [];
+            R.result = [];
+            R.kappa = NaN;
+            R.target_expr = array2table(target_exp_hat, ...
+                'VariableNames', {threshold_name}, ...
+                'RowNames', reg.beta_df_valid.Properties.RowNames);
+            WT_results.(threshold_name) = R;
+
+            if infeas_count >= params.maxInfeas
+                fprintf('\nStopping WT simulations after %d consecutive infeasible thresholds.\n', params.maxInfeas);
+                break;
+            end
+        end
+    end
+
+    simulatedThresholds = fieldnames(WT_results);
+    rmse_table = table('Size', [numel(simulatedThresholds), 5], ...
+        'VariableTypes', {'string','double','double','double','double'}, ...
+        'VariableNames', {'Threshold','RMSE','R2','Growth','Discriminability'});
+
+    for th = 1:numel(simulatedThresholds)
+        threshold_name = simulatedThresholds{th};
+        predicted_tbl = WT_results.(threshold_name).target_expr;
+        predicted_vec = predicted_tbl{:,1};
+        target_exp_valid = reg.target_exp_valid;
+
+        predicted_vec = log(abs(predicted_vec) + eps);
+        target_exp_valid = log(abs(target_exp_valid) + eps);
+
+        residual = target_exp_valid - predicted_vec;
+        goodIdx = isfinite(residual);
+        predicted_vec = predicted_vec(goodIdx);
+        target_exp_valid = target_exp_valid(goodIdx);
+
+        residual = target_exp_valid - predicted_vec;
+        rmse_value = sqrt(mean(residual.^2));
+        ss_res = sum((predicted_vec - target_exp_valid).^2);
+        ss_tot = sum((target_exp_valid - mean(target_exp_valid)).^2);
+        r2 = 1 - (ss_res / (ss_tot + eps));
+
+        state = buildThresholdState(reg, reg.threshold_values(th), params.thresholdSource);
+        y_base = reg.gene_to_rxn_map * state.y_tgt;
+        delta_norms = zeros(numel(reg.TF_list), 1);
+        for i = 1:numel(reg.TF_list)
+            if state.z_bin(i) == 0
+                continue;
+            end
+            zko = state.z_bin;
+            zko(i) = 0;
+            y_ko = reg.gene_to_rxn_map * (reg.beta_matrix * (reg.TF_exp .* zko));
+            delta_norms(i) = norm(y_base - y_ko);
+        end
+        active_deltas = delta_norms(state.z_bin == 1);
+        if isempty(active_deltas) || mean(active_deltas) <= 0
+            discriminability = 0;
+        else
+            discriminability = std(active_deltas) / mean(active_deltas);
+        end
+
+        rmse_table.Threshold(th) = string(threshold_name);
+        rmse_table.RMSE(th) = rmse_value;
+        rmse_table.R2(th) = r2;
+        rmse_table.Growth(th) = WT_results.(threshold_name).biomass;
+        rmse_table.Discriminability(th) = discriminability;
+    end
+
+    wt = struct();
+    wt.WT_results = WT_results;
+    wt.rmse_table = rmse_table;
+    wt.threshold_names = simulatedThresholds;
+    wt.z_struct = z_struct;
+    wt.threshold_values = reg.threshold_values(1:numel(threshold_names));
+end

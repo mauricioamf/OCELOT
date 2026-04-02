@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>OCELOT API – Entry points</title>
+  <link rel="stylesheet" href="../assets/ocelot-docs.css" />
+</head>
+<body>
+<main>
+<nav><a href="../README.html">Home</a> · <a href="../getting-started.html">Getting started</a> · <a href="../architecture.html">Architecture overview</a> · <a href="../api/index.html">API</a> · <a href="../examples.html">Examples</a> · <a href="../project-manual.html">Manual</a></nav>
+
+<header id="title-block-header">
+<h1 class="title">API: Entry points</h1>
+</header>
+
+<ul>
+<li><a href="#ocelot">OCELOT</a></li>
+<li><a href="#runknockout">runKnockout</a></li>
+<li><a href="#runengineering">runEngineering</a></li>
+<li><a href="#choosing-an-entry-point">Choosing an entry point</a></li>
+<li><a href="#minimal-usage-patterns">Minimal usage patterns</a></li>
+</ul>
+
+<p>This page documents the top-level functions that users are expected to call directly. In most projects, <code>OCELOT</code> is the main entry point, while <code>runKnockout</code> and <code>runEngineering</code> are used when only one workflow is needed.</p>
+
+<h2 id="ocelot"><code>OCELOT</code></h2>
+<p><strong>Role.</strong> Unified dispatcher for the package. This is the highest-level entry point and is designed for species wrappers, tutorials, and most end-user workflows.</p>
+<p><strong>Typical responsibilities.</strong></p>
+<ul>
+<li>read mode flags from <code>params</code></li>
+<li>prepare shared wild-type context</li>
+<li>dispatch to knockout and/or engineering workflows</li>
+<li>collect outputs into a single structured result</li>
+</ul>
+<p><strong>Use this when.</strong> You want one call that can run knockout analysis, engineering analysis, or both, depending on flags.</p>
+<p><strong>Important flags.</strong></p>
+<ul>
+<li><code>params.runKnockout</code></li>
+<li><code>params.runEngineering</code></li>
+<li><code>params.performEssentialityEvaluation</code></li>
+<li><code>params.validateStrategies</code></li>
+<li><code>params.validateSingleKOs</code></li>
+</ul>
+<p><strong>Expected output pattern.</strong> A struct with top-level fields for shared context and optional subfields such as knockout and engineering results.</p>
+
+<h2 id="runknockout"><code>runKnockout</code></h2>
+<p><strong>Role.</strong> Execute the TF knockout workflow only.</p>
+<p><strong>Typical responsibilities.</strong></p>
+<ul>
+<li>prepare condition-specific regulatory state</li>
+<li>simulate one TF knockout at a time</li>
+<li>store KO biomass and optionally KO flux solutions</li>
+<li>optionally perform essentiality benchmarking</li>
+</ul>
+<p><strong>Use this when.</strong> You want TF knockout simulations without running engineering strategy search.</p>
+<p><strong>Typical required inputs.</strong></p>
+<ul>
+<li>configured COBRA model</li>
+<li>expression table</li>
+<li>beta matrix</li>
+<li><code>params.selectedReference</code></li>
+<li>model configuration parameters such as biomass reaction and growth mode</li>
+</ul>
+<p><strong>Optional outputs.</strong></p>
+<ul>
+<li>KO growth table</li>
+<li>KO fluxes</li>
+<li>coverage masks</li>
+<li>evaluation metrics and plots</li>
+</ul>
+
+<h2 id="runengineering"><code>runEngineering</code></h2>
+<p><strong>Role.</strong> Execute the engineering workflow only.</p>
+<p><strong>Typical responsibilities.</strong></p>
+<ul>
+<li>reuse or reconstruct WT threshold-selected regulatory context</li>
+<li>maximize product under growth constraints</li>
+<li>run the engineering MILP</li>
+<li>filter raw strategies</li>
+<li>validate multi-TF strategies and optional single KOs</li>
+</ul>
+<p><strong>Use this when.</strong> You are searching for TF perturbation strategies rather than benchmarking essentiality.</p>
+<p><strong>Typical required inputs.</strong></p>
+<ul>
+<li>configured COBRA model</li>
+<li>expression table</li>
+<li>beta matrix</li>
+<li><code>params.prodRxn</code></li>
+<li>engineering settings such as perturbation limits and flexibility thresholds</li>
+</ul>
+
+<h2 id="choosing-an-entry-point">Choosing an entry point</h2>
+<table>
+<thead>
+<tr><th>Goal</th><th>Recommended function</th></tr>
+</thead>
+<tbody>
+<tr><td>Run the full package from one script</td><td><code>OCELOT</code></td></tr>
+<tr><td>Simulate TF KOs only</td><td><code>runKnockout</code></td></tr>
+<tr><td>Search for TF engineering strategies only</td><td><code>runEngineering</code></td></tr>
+<tr><td>Build a species wrapper script</td><td><code>OCELOT</code></td></tr>
+<tr><td>Debug one path in isolation</td><td><code>runKnockout</code> or <code>runEngineering</code></td></tr>
+</tbody>
+</table>
+
+<h2 id="minimal-usage-patterns">Minimal usage patterns</h2>
+<h3>Unified workflow</h3>
+<pre><code>params.runKnockout = true;
+params.runEngineering = true;
+results = OCELOT(model, expression_data, beta_df, params);</code></pre>
+
+<h3>Knockout-only workflow</h3>
+<pre><code>params.performEssentialityEvaluation = true;
+koResults = runKnockout(model, expression_data, beta_df, params);</code></pre>
+
+<h3>Engineering-only workflow</h3>
+<pre><code>params.validateStrategies = true;
+params.validateSingleKOs = true;
+engResults = runEngineering(model, expression_data, beta_df, params);</code></pre>
+
+<p><a href="index.html">Back to API home</a></p>
+</main>
+</body>
+</html>

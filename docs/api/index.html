@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>index</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="../assets/ocelot-docs.css" />
+</head>
+<body>
+<main>
+
+<nav><a href="../README.html">Home</a> · <a href="../getting-started.html">Getting started</a> · <a href="../architecture.html">Architecture overview</a> · <a href="../api/index.html">API</a> · <a href="../examples.html">Examples</a> · <a href="../project-manual.html">Manual</a></nav>
+
+<header id="title-block-header">
+<h1 class="title">API home and quick reference</h1>
+</header>
+
+<ul>
+<li><a href="#main-entry-points" id="toc-main-entry-points">Main entry points</a></li>
+<li><a href="#reading-the-api-pages" id="toc-reading-the-api-pages">Reading the API pages</a></li>
+<li><a href="#entry-points" id="toc-entry-points">Entry points</a></li>
+<li><a href="#wt-setup-and-selection" id="toc-wt-setup-and-selection">WT setup and selection</a></li>
+<li><a href="#knockout-path" id="toc-knockout-path">Knockout path</a></li>
+<li><a href="#engineering-path" id="toc-engineering-path">Engineering path</a></li>
+<li><a href="#utilities" id="toc-utilities">Utilities</a></li>
+<li><a href="#common-parameter-groups" id="toc-common-parameter-groups">Common parameter groups</a>
+  <ul>
+  <li><a href="#mode-flags" id="toc-mode-flags">Mode flags</a></li>
+  <li><a href="#model-configuration" id="toc-model-configuration">Model configuration</a></li>
+  <li><a href="#autotrophic-configuration" id="toc-autotrophic-configuration">Autotrophic configuration</a></li>
+  <li><a href="#threshold-and-solver-behavior" id="toc-threshold-and-solver-behavior">Threshold and solver behavior</a></li>
+  <li><a href="#engineering-behavior" id="toc-engineering-behavior">Engineering behavior</a></li>
+  </ul></li>
+<li><a href="#sections" id="toc-sections">OCELOT functions by sections</a></li>
+</ul>
+
+<h2 id="reading-the-api-pages">Reading the API pages</h2>
+<p>The pages in this section describe:</p>
+<ul>
+<li>what each function is responsible for</li>
+<li>the expected inputs and outputs</li>
+<li>how functions relate to the rest of the pipeline</li>
+<li>the most important parameters that affect behavior</li>
+</ul>
+<p>Because the code is modular, many helper functions are only
+meaningful in context. The API notes therefore emphasize <strong>where a
+function fits</strong> rather than documenting every local variable.</p>
+
+<h2 id="entry-points">Entry points</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Function</th>
+<th>Use when</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>OCELOT</code></td>
+<td>You want one unified top-level call</td>
+</tr>
+<tr class="even">
+<td><code>runKnockout</code></td>
+<td>You want only KO simulation and optional essentiality
+benchmarking</td>
+</tr>
+<tr class="odd">
+<td><code>runEngineering</code></td>
+<td>You want only engineering search and validation</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="wt-setup-and-selection">WT setup and selection</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Function</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>configureBaseModel</code></td>
+<td>Build the heterotrophic or generic base model state</td>
+</tr>
+<tr class="even">
+<td><code>configureAutotrophicModel</code></td>
+<td>Apply autotrophic-specific model edits</td>
+</tr>
+<tr class="odd">
+<td><code>preprocessExpressionData</code></td>
+<td>Collapse replicates and prepare condition-level expression
+tables</td>
+</tr>
+<tr class="even">
+<td><code>buildRegulatoryContext</code></td>
+<td>Build TF, target, coefficient, and reaction-mapping context</td>
+</tr>
+<tr class="odd">
+<td><code>chooseThresholdValues</code></td>
+<td>Generate candidate thresholds</td>
+</tr>
+<tr class="even">
+<td><code>buildThresholdState</code></td>
+<td>Build the regulatory state for one threshold</td>
+</tr>
+<tr class="odd">
+<td><code>runWTThresholdSelection</code></td>
+<td>Scan thresholds and solve WT subproblems</td>
+</tr>
+<tr class="even">
+<td><code>selectBestThreshold</code></td>
+<td>Pick the final threshold from the threshold scan</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="knockout-path">Knockout path</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Function</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>buildConditionRegState</code></td>
+<td>Assemble condition-specific regulatory state</td>
+</tr>
+<tr class="even">
+<td><code>solveKOByRatio</code></td>
+<td>Solve a KO problem relative to WT</td>
+</tr>
+<tr class="odd">
+<td><code>runKnockout</code></td>
+<td>Execute the full knockout workflow</td>
+</tr>
+<tr class="even">
+<td><code>runEssentialityEvaluation</code></td>
+<td>Compute ROC/cutoff metrics against a reference set</td>
+</tr>
+<tr class="odd">
+<td><code>resolveEssentialityColumns</code></td>
+<td>Identify gene and label columns in the essentiality table</td>
+</tr>
+<tr class="even">
+<td><code>plotEvaluation</code></td>
+<td>Render evaluation figures</td>
+</tr>
+<tr class="odd">
+<td><code>printEvaluationSummary</code></td>
+<td>Print evaluation summaries</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="engineering-path">Engineering path</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Function</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>buildUpsilon</code></td>
+<td>Construct the reaction-by-TF influence matrix</td>
+</tr>
+<tr class="even">
+<td><code>runEngineeringMILP</code></td>
+<td>Solve the engineering MILP and enumerate strategies</td>
+</tr>
+<tr class="odd">
+<td><code>filterStrategies</code></td>
+<td>Remove invalid or uninformative raw strategies</td>
+</tr>
+<tr class="even">
+<td><code>validateStrategies</code></td>
+<td>Re-solve with engineered TF states fixed</td>
+</tr>
+<tr class="odd">
+<td><code>validateSingleKOs</code></td>
+<td>Test individual KOs from the strategy pool</td>
+</tr>
+<tr class="even">
+<td><code>runEngineering</code></td>
+<td>Execute the full engineering workflow</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="utilities">Utilities</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Function</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>applyBoundChangeList</code></td>
+<td>Apply a list of bound edits to a model</td>
+</tr>
+<tr class="even">
+<td><code>replaceInfWithFinite</code></td>
+<td>Sanitize non-finite numeric values</td>
+</tr>
+<tr class="odd">
+<td><code>joinCellString</code></td>
+<td>Join cell arrays of strings for export or reporting</td>
+</tr>
+<tr class="even">
+<td><code>toCellstr</code></td>
+<td>Normalize input as cellstr</td>
+</tr>
+<tr class="odd">
+<td><code>toStringArray</code></td>
+<td>Normalize input as string array</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="common-parameter-groups">Common parameter groups</h2>
+<h3 id="mode-flags">Mode flags</h3>
+<ul>
+<li><code>runKnockout</code></li>
+<li><code>runEngineering</code></li>
+<li><code>performEssentialityEvaluation</code></li>
+<li><code>validateStrategies</code></li>
+<li><code>validateSingleKOs</code></li>
+</ul>
+<h3 id="model-configuration">Model configuration</h3>
+<ul>
+<li><code>growthType</code></li>
+<li><code>biomassRxn</code></li>
+<li><code>mediumRxns</code></li>
+<li><code>glucoseRxn</code></li>
+<li><code>glucoseUptake</code></li>
+<li><code>protectedRxns</code></li>
+</ul>
+<h3 id="autotrophic-configuration">Autotrophic configuration</h3>
+<ul>
+<li><code>photonRxn</code></li>
+<li><code>hco3Rxn</code></li>
+<li><code>co2Rxn</code></li>
+<li><code>HCO3Uptake</code></li>
+<li><code>autotrophicOffBiomassRxns</code></li>
+<li><code>autotrophicDisableRxns</code></li>
+<li><code>fnorRxn</code></li>
+</ul>
+<h3 id="threshold-and-solver-behavior">Threshold and solver
+behavior</h3>
+<ul>
+<li><code>thresholdSource</code></li>
+<li><code>thresholdSelection</code></li>
+<li><code>kappaStart</code></li>
+<li><code>kappaMin</code></li>
+<li><code>maxInfeas</code></li>
+<li><code>mu</code></li>
+</ul>
+<h3 id="engineering-behavior">Engineering behavior</h3>
+<ul>
+<li><code>prodRxn</code></li>
+<li><code>maxPerturbations</code></li>
+<li><code>maxIterations</code></li>
+<li><code>flexBiomass</code></li>
+<li><code>flexProduct</code></li>
+</ul>
+
+<h2 id="sections">OCELOT functions by sections</h2>
+<ul>
+<li><a href="entry-points.html">Entry points</a></li>
+<li><a href="WT-setup-and-selection.html">WT setup and selection</a></li>
+<li><a href="knockout-path.html">Knockout path</a></li>
+<li><a href="engineering-path.html">Engineering path</a></li>
+<li><a href="utilities.html">Utilities</a></li>
+</ul>
+
+</main>
+</body>
+</html>

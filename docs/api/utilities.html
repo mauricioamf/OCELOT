@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>OCELOT API – Utilities</title>
+  <link rel="stylesheet" href="../assets/ocelot-docs.css" />
+</head>
+<body>
+<main>
+<nav><a href="../README.html">Home</a> · <a href="../getting-started.html">Getting started</a> · <a href="../architecture.html">Architecture overview</a> · <a href="../api/index.html">API</a> · <a href="../examples.html">Examples</a> · <a href="../project-manual.html">Manual</a></nav>
+
+<header id="title-block-header">
+<h1 class="title">API: Utilities</h1>
+</header>
+
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#applyboundchangelist">applyBoundChangeList</a></li>
+<li><a href="#replaceinfwithfinite">replaceInfWithFinite</a></li>
+<li><a href="#joincellstring">joinCellString</a></li>
+<li><a href="#tocellstr">toCellstr</a></li>
+<li><a href="#tostringarray">toStringArray</a></li>
+<li><a href="#utility-design-notes">Utility design notes</a></li>
+</ul>
+
+<h2 id="overview">Overview</h2>
+<p>The utility functions keep the core workflow readable by moving repetitive data-cleaning and formatting tasks into small helpers. These functions are usually not called directly by end users, but they are useful when extending the codebase or building new wrappers.</p>
+
+<h2 id="applyboundchangelist"><code>applyBoundChangeList</code></h2>
+<p>Apply a structured list of bound edits to a model. This is especially useful for species wrappers or growth-mode-specific setup code where many reactions need consistent lower-bound or upper-bound changes.</p>
+<p><strong>Typical input format.</strong> A list or struct array describing reaction IDs, values, and which side of the bound should be changed.</p>
+<p><strong>Main benefit.</strong> centralizes repetitive <code>changeRxnBounds</code> logic.</p>
+
+<h2 id="replaceinfwithfinite"><code>replaceInfWithFinite</code></h2>
+<p>Sanitize vectors or matrices that may contain <code>Inf</code>, <code>-Inf</code>, or otherwise non-finite values introduced during normalization or ratio calculations. The exact replacement strategy may depend on the code path, but the purpose is to keep downstream optimization and plotting code numerically stable.</p>
+
+<h2 id="joincellstring"><code>joinCellString</code></h2>
+<p>Join cell arrays of strings into a single display string. This is mainly used for exporting KO or activation lists into compact table columns and for console reporting.</p>
+
+<h2 id="tocellstr"><code>toCellstr</code></h2>
+<p>Normalize inputs into MATLAB cell arrays of character vectors. Useful when helper functions may receive strings, chars, or cell arrays and need a stable internal representation.</p>
+
+<h2 id="tostringarray"><code>toStringArray</code></h2>
+<p>Normalize inputs into MATLAB string arrays. Useful when wrappers or reports need consistent string-array behavior for indexing, comparison, and table export.</p>
+
+<h2 id="utility-design-notes">Utility design notes</h2>
+<ul>
+<li>These helpers should remain side-effect free whenever possible.</li>
+<li>They are good places to add input validation if you want stricter package behavior.</li>
+<li>If you introduce new species wrappers, prefer reusing these helpers over duplicating formatting or model-edit code.</li>
+</ul>
+
+<p><a href="index.html">Back to API home</a></p>
+</main>
+</body>
+</html>

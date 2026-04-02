@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>architecture</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="assets/ocelot-docs.css" />
+</head>
+
+<body>
+<main>
+
+<nav><a href="README.html">Home</a> · <a href="getting-started.html">Getting started</a> · <a href="architecture.html">Architecture overview</a> · <a href="api/index.html">API</a> · <a href="examples.html">Examples</a> · <a href="manuals/OCELOT_Manual.html">Manual</a></nav>
+
+<header id="title-block-header">
+<h1 class="title">Architecture overview</h1>
+</header>
+
+<ul>
+<li><a href="#high-level-flow" id="toc-high-level-flow">High-level flow</a></li>
+<li><a href="#data-flow" id="toc-data-flow">Data flow</a></li>
+<li><a href="#core-algorithmic-ideas" id="toc-core-algorithmic-ideas">Core algorithmic ideas</a>
+  <ul>
+  <li><a href="#reaction-level-regulation-from-gene-level-coefficients"
+  id="toc-reaction-level-regulation-from-gene-level-coefficients">Reaction-level regulation from gene-level coefficients</a></li>
+  <li><a href="#slack-based-prom-like-relaxation" id="toc-slack-based-prom-like-relaxation">Slack-based PROM-like relaxation</a></li>
+  <li><a href="#engineering-as-controlled-deviation-from-wt" id="toc-engineering-as-controlled-deviation-from-wt">Engineering as controlled deviation from WT</a></li>
+  </ul></li>
+<li><a href="#species-specific-adaptation-points" id="toc-species-specific-adaptation-points">Species-specific adaptation points</a>
+  <ul>
+  <li><a href="#heterotrophic-organisms" id="toc-heterotrophic-organisms">Heterotrophic organisms</a></li>
+  <li><a href="#autotrophic-organisms" id="toc-autotrophic-organisms">Autotrophic organisms</a></li>
+  </ul></li>
+<li><a href="#why-the-code-is-split-into-many-local-functions"
+id="toc-why-the-code-is-split-into-many-local-functions">Why the code is split into many local functions</a></li>
+</ul>
+
+<h2 id="high-level-flow">High-level flow</h2>
+<p>OCELOT follows the same logic across species:</p>
+<ol type="1">
+<li><strong>configure the model</strong> for the chosen growth mode</li>
+<li><strong>preprocess expression data</strong> and collapse replicates by condition</li>
+<li><strong>build the regulatory context</strong> from expression, TF-target coefficients, and the GEM</li>
+<li><strong>scan candidate thresholds</strong> and solve WT problems with scaled regulatory bounds</li>
+<li><strong>choose the best threshold</strong> using a user-selected criterion</li>
+<li>branch into either:
+  <ul>
+  <li><strong>knockout simulation</strong>, or</li>
+  <li><strong>engineering MILP search</strong></li>
+  </ul></li>
+<li><strong>evaluate or validate</strong> predictions if requested</li>
+</ol>
+
+<h2 id="data-flow">Data flow</h2>
+<pre class="text"><code>model + expression_data + beta_df + params
+                ↓
+        configureBaseModel / configureAutotrophicModel
+                ↓
+         preprocessExpressionData
+                ↓
+         buildRegulatoryContext
+                ↓
+       runWTThresholdSelection
+                ↓
+         selectBestThreshold
+                ↓
+        ┌───────────────┴───────────────┐
+        ↓                               ↓
+   runKnockout                    runEngineering
+        ↓                               ↓
+runEssentialityEvaluation     validateStrategies / validateSingleKOs</code></pre>
+
+<h2 id="core-algorithmic-ideas">Core algorithmic ideas</h2>
+<h3 id="reaction-level-regulation-from-gene-level-coefficients">Reaction-level regulation from gene-level coefficients</h3>
+<p>The coefficient matrix maps TFs to target genes. OCELOT then maps target genes to reactions using the model gene-reaction structure.</p>
+<p>Conceptually:</p>
+<ol type="1">
+  <li>TF expression and thresholding define a TF activity state</li>
+  <li>target-level regulatory scores are computed from <code>beta_df</code></li>
+  <li>target genes are mapped to reactions through <code>rxnGeneMat</code></li>
+  <li>reaction capacities are scaled accordingly</li>
+</ol>
+
+<h3 id="slack-based-prom-like-relaxation">Slack-based PROM-like relaxation</h3>
+<p>Instead of forcing every regulatory bound exactly, OCELOT introduces
+slack variables so that the optimization remains feasible even when the
+regulatory layer conflicts with metabolic constraints.</p>
+<p>This produces a soft-constrained formulation in which:</p>
+<ul>
+  <li><code>kappa</code> penalizes slack usage</li>
+  <li>biomass or product remains the main metabolic objective</li>
+  <li>the chosen WT threshold affects how aggressively the regulatory layer constrains fluxes</li>
+</ul>
+
+<h3 id="engineering-as-controlled-deviation-from-wt">Engineering as controlled deviation from WT</h3>
+<p>In engineering mode, the WT TF state is used as the reference. The
+MILP then searches for modified TF states that:</p>
+<ul>
+  <li>satisfy minimum biomass and product requirements</li>
+  <li>stay close to the WT TF pattern</li>
+  <li>use as little slack as possible</li>
+  <li>respect a user-defined perturbation budget</li>
+</ul>
+
+<h2 id="species-specific-adaptation-points">Species-specific adaptation points</h2>
+<h3 id="heterotrophic-organisms">Heterotrophic organisms</h3>
+<p>Typical configuration:</p>
+<ul>
+  <li>close all exchange reactions by default</li>
+  <li>open a defined medium</li>
+  <li>open a carbon source such as glucose</li>
+  <li>optimize biomass</li>
+</ul>
+
+<h3 id="autotrophic-organisms">Autotrophic organisms</h3>
+<p>Typical configuration:</p>
+<ul>
+<li>disable heterotrophic and mixotrophic biomass modes</li>
+<li>open photons and carbon fixation routes</li>
+<li>constrain or disable specific respiratory alternatives</li>
+<li>optionally protect light, bicarbonate, and other special reactions
+from regulatory scaling</li>
+</ul>
+
+<h2 id="why-the-code-is-split-into-many-local-functions">Why the code is split into many local functions</h2>
+<p>The current <code>src/</code> layout avoids one monolithic script and instead exposes a small pipeline:</p>
+<ul>
+  <li><strong>configuration functions</strong> define the metabolic context</li>
+  <li><strong>context-building functions</strong> assemble the regulatory state</li>
+  <li><strong>solver functions</strong> perform KO or engineering optimization</li>
+  <li><strong>evaluation functions</strong> compute metrics and validation tables</li>
+  <li><strong>utility functions</strong> keep string handling and formatting separate from modeling logic</li>
+</ul>
+<p>This makes the code easier to:</p>
+<ul>
+  <li>test</li>
+  <li>document</li>
+  <li>port across organisms</li>
+  <li>replace piece by piece without rewriting the full workflow</li>
+</ul>
+
+</main>
+</body>
+</html>

@@ -1,1 +1,35 @@
+<img src="./docs/assets/ocelot-logo.png" width="300px">
+
 # OCELOT
+
+The **O**ptimization **C**oupling **E**xpression **L**andscape **o**f **T**ranscription Factors (OCELOT) integrates gene regulatory networks (GRNs) with genome-scale metabolic models (GEMs) to support two main tasks:
+
+1. Transcription factor knockout simulation, optionally followed by essentiality evaluation
+1. Metabolic engineering, including strategy search and post hoc validation
+
+## Installation
+
+### Dependencies:
+
+* MATLAB (tested with version 2025a)
+* Gurobi solver (tested with version 12.0.1)
+
+### How to install:
+
+* Clone the repository in the desired directory or download the [the latest release](https://github.com/mauricioamf/OCELOT/releases) as a ZIP file.
+
+## How to use
+
+The [`Protocol.m`](https://github.com/mauricioamf/OCELOT/blob/main/Protocol.m) file contains step-by-step instructions on how to run OCELOT using example data. Please refer to the documentation on the `docs/` folder for detailed instructions.
+
+The folder `manuscript/`contains the code and data used in the manuscript for generating the presented results.
+
+## Citation
+
+If you use OCELOT, please cite:
+
+> Ferreira et al. _Rational design of metabolic engineering strategies based on modulating the expression of transcription factors_. bioRxiv (2026). [DOI: pending](https://doi.org/)
+
+## Why the name "CORAL"?
+
+This software was named after the short-tailed coral snake, _Micrurus frontalis_, found in South America. This snake has fossorial habits, meaning it digs soil and stays _underground_.

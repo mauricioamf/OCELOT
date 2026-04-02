@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>OCELOT API – Knockout path</title>
+  <link rel="stylesheet" href="../assets/ocelot-docs.css" />
+</head>
+<body>
+<main>
+<nav><a href="../README.html">Home</a> · <a href="../getting-started.html">Getting started</a> · <a href="../architecture.html">Architecture overview</a> · <a href="../api/index.html">API</a> · <a href="../examples.html">Examples</a> · <a href="../project-manual.html">Manual</a></nav>
+
+<header id="title-block-header">
+<h1 class="title">API: Knockout path</h1>
+</header>
+
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#buildconditionregstate">buildConditionRegState</a></li>
+<li><a href="#solvekobyratio">solveKOByRatio</a></li>
+<li><a href="#runknockout">runKnockout</a></li>
+<li><a href="#runessentialityevaluation">runEssentialityEvaluation</a></li>
+<li><a href="#resolveessentialitycolumns">resolveEssentialityColumns</a></li>
+<li><a href="#plotevaluation">plotEvaluation</a></li>
+<li><a href="#printevaluationsummary">printEvaluationSummary</a></li>
+</ul>
+
+<h2 id="overview">Overview</h2>
+<p>The knockout path takes the selected WT regulatory context and simulates one TF knockout at a time. It can also compare the simulated growth defects against a supplied essentiality reference set to reproduce benchmarking analyses.</p>
+
+<h2 id="buildconditionregstate"><code>buildConditionRegState</code></h2>
+<p>Construct the condition-specific regulatory state used for KO simulations. This function usually takes the chosen WT threshold logic and applies it to a particular expression condition to build:</p>
+<ul>
+<li>active TF state for that condition</li>
+<li>WT reaction activity baseline</li>
+<li>KO-specific reaction activity states for each TF</li>
+<li>coverage indicators describing whether each TF changes at least one reaction</li>
+</ul>
+
+<h2 id="solvekobyratio"><code>solveKOByRatio</code></h2>
+<p>Solve a KO by scaling regulated reaction bounds relative to the WT condition. Rather than rebuilding a complete regulatory model from scratch for each TF, this helper typically computes a KO-to-WT ratio per regulated reaction and solves a slack-penalized optimization problem.</p>
+<p><strong>Typical responsibilities.</strong></p>
+<ul>
+<li>translate KO regulatory effects into bound ratios</li>
+<li>respect protected reactions</li>
+<li>build the optimization problem with alpha/beta slack variables</li>
+<li>return biomass and optionally the full flux solution</li>
+</ul>
+
+<h2 id="runknockout"><code>runKnockout</code></h2>
+<p>Main knockout workflow. This function usually:</p>
+<ol>
+<li>prepares WT threshold-selected context</li>
+<li>loops through the requested conditions</li>
+<li>builds KO regulatory states</li>
+<li>solves one TF knockout at a time</li>
+<li>stores KO growth, fluxes, and coverage summaries</li>
+<li>optionally runs essentiality evaluation and plots</li>
+</ol>
+<p><strong>Key parameters.</strong></p>
+<ul>
+<li><code>selectedReference</code></li>
+<li><code>performEssentialityEvaluation</code></li>
+<li><code>cutoffPerc</code></li>
+<li><code>showPlots</code></li>
+</ul>
+
+<h2 id="runessentialityevaluation"><code>runEssentialityEvaluation</code></h2>
+<p>Benchmark KO predictions against an essentiality table. This function typically computes:</p>
+<ul>
+<li>continuous scores from KO biomass relative to WT</li>
+<li>ROC curves and AUC</li>
+<li>accuracy, sensitivity, and specificity over a cutoff sweep</li>
+<li>confusion matrices for selected cutoffs</li>
+</ul>
+<p>This is the main evaluation layer used when the knockout workflow is intended to reproduce manuscript-style essentiality analyses.</p>
+
+<h2 id="resolveessentialitycolumns"><code>resolveEssentialityColumns</code></h2>
+<p>Determine which columns in the essentiality table should be used as the TF or gene identifier column and which column contains the essentiality label. This helper makes evaluation more robust across datasets that use different header names.</p>
+
+<h2 id="plotevaluation"><code>plotEvaluation</code></h2>
+<p>Render evaluation plots from the knockout benchmarking results. Depending on settings, this may include ROC curves, confusion charts, and aggregate histograms across conditions.</p>
+<p><strong>Input expectation.</strong> precomputed metrics tables rather than raw KO simulations.</p>
+
+<h2 id="printevaluationsummary"><code>printEvaluationSummary</code></h2>
+<p>Print concise summaries of the essentiality benchmarking results to the MATLAB console. Typical outputs include coverage, numbers of essential and non-essential TFs evaluated, and mean accuracy, sensitivity, specificity, and AUC at the selected cutoff.</p>
+
+<p><a href="index.html">Back to API home</a></p>
+</main>
+</body>
+</html>

@@ -1,0 +1,45 @@
+
+:root {
+  --bg: #0f1320;
+  --panel: #ffffff;
+  --text: #1f2937;
+  --muted: #5b6472;
+  --accent: #0b5fff;
+  --border: #d9dfeb;
+  --code-bg: #f5f7fb;
+  --pre-bg: #101826;
+  --pre-text: #ecf2ff;
+}
+html { scroll-behavior: smooth; }
+body {
+  margin: 0 auto;
+  max-width: 980px;
+  padding: 2rem 1.25rem 4rem;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--text);
+  background: #f8fafc;
+  line-height: 1.65;
+}
+main { background: var(--panel); border: 1px solid var(--border); border-radius: 18px; padding: 2rem 2.2rem; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05); }
+nav, .navbox { background: #eef4ff; border: 1px solid #cfe0ff; border-radius: 14px; padding: 1rem 1.1rem; margin: 0 0 1.25rem; }
+.navbox p { margin: 0.25rem 0; }
+h1, h2, h3, h4 { line-height: 1.25; color: #0f172a; }
+h1 { font-size: 2rem; margin-top: 0; }
+h2 { font-size: 1.45rem; margin-top: 2rem; padding-top: 0.4rem; border-top: 1px solid #eef2f7; }
+h3 { font-size: 1.15rem; margin-top: 1.6rem; }
+p code, li code, td code { background: var(--code-bg); border: 1px solid var(--border); border-radius: 7px; padding: 0.08rem 0.35rem; }
+pre { background: var(--pre-bg); color: var(--pre-text); padding: 1rem 1.1rem; overflow-x: auto; border-radius: 12px; }
+pre code { background: transparent; border: 0; color: inherit; padding: 0; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+blockquote { margin: 1rem 0; padding: 0.8rem 1rem; border-left: 4px solid #9bb8ff; background: #f7faff; color: #334155; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0 1.5rem; }
+th, td { border: 1px solid var(--border); padding: 0.65rem 0.75rem; text-align: left; vertical-align: top; }
+th { background: #f4f7fb; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 2rem 0; }
+.small { color: var(--muted); font-size: 0.95rem; }
+.badge { display: inline-block; padding: 0.2rem 0.55rem; border-radius: 999px; font-size: 0.82rem; background: #e8f0ff; color: #1247b8; margin-right: 0.35rem; }
+@media (max-width: 760px) {
+  body { padding: 1rem 0.75rem 3rem; }
+  main { padding: 1.25rem; }
+}

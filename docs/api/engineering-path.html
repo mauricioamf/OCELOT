@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>OCELOT API – Engineering path</title>
+  <link rel="stylesheet" href="../assets/ocelot-docs.css" />
+</head>
+<body>
+<main>
+<nav><a href="../README.html">Home</a> · <a href="../getting-started.html">Getting started</a> · <a href="../architecture.html">Architecture overview</a> · <a href="../api/index.html">API</a> · <a href="../examples.html">Examples</a> · <a href="../project-manual.html">Manual</a></nav>
+
+<header id="title-block-header">
+<h1 class="title">API: Engineering path</h1>
+</header>
+
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#buildupsilon">buildUpsilon</a></li>
+<li><a href="#runengineeringmilp">runEngineeringMILP</a></li>
+<li><a href="#filterstrategies">filterStrategies</a></li>
+<li><a href="#validatestrategies">validateStrategies</a></li>
+<li><a href="#validatesinglekos">validateSingleKOs</a></li>
+<li><a href="#runengineering">runEngineering</a></li>
+</ul>
+
+<h2 id="overview">Overview</h2>
+<p>The engineering path searches for TF perturbation strategies that improve production while satisfying growth and feasibility constraints. It begins from the selected WT regulatory context, constructs a reaction-by-TF influence matrix, solves the strategy MILP, filters raw solutions, and validates the surviving strategy set.</p>
+
+<h2 id="buildupsilon"><code>buildUpsilon</code></h2>
+<p>Build the reaction-by-TF influence matrix used by the engineering MILP. This matrix translates TF state decisions into reaction-level regulatory influence coefficients.</p>
+<p><strong>Typical inputs.</strong></p>
+<ul>
+<li>reaction-to-target map</li>
+<li>beta matrix or beta-prime matrix</li>
+<li>WT regulatory baseline information</li>
+<li>normalization mode</li>
+</ul>
+<p><strong>Why it matters.</strong> The MILP uses this matrix directly in its regulatory constraints, so normalization choices can strongly affect solution behavior.</p>
+
+<h2 id="runengineeringmilp"><code>runEngineeringMILP</code></h2>
+<p>Core engineering solver. This function usually:</p>
+<ul>
+<li>builds the optimization variables for fluxes, slacks, and TF states</li>
+<li>adds steady-state and regulatory constraints</li>
+<li>imposes growth and product requirements</li>
+<li>limits the number of TF perturbations</li>
+<li>iteratively adds integer cuts to enumerate multiple strategies</li>
+</ul>
+<p><strong>Typical key parameters.</strong></p>
+<ul>
+<li><code>prodRxn</code></li>
+<li><code>maxPerturbations</code></li>
+<li><code>maxIterations</code></li>
+<li><code>flexBiomass</code></li>
+<li><code>flexProduct</code></li>
+<li><code>kappa</code></li>
+</ul>
+
+<h2 id="filterstrategies"><code>filterStrategies</code></h2>
+<p>Remove raw strategy rows that are not useful for downstream interpretation. Typical filters include:</p>
+<ul>
+<li>rows with NaNs in required numeric columns</li>
+<li>strategies with no perturbations</li>
+<li>degenerate all-TF patterns</li>
+<li>solutions with invalid or all-zero TF state vectors</li>
+</ul>
+<p>This is mainly a post-processing step to clean up MILP output before validation and export.</p>
+
+<h2 id="validatestrategies"><code>validateStrategies</code></h2>
+<p>Re-solve the optimization problem with the engineered TF state fixed. This is the main strategy validation step and is used to estimate achievable growth and product levels under the predicted perturbation pattern.</p>
+<p><strong>Typical outputs.</strong></p>
+<ul>
+<li>validated growth and product values under biomass-maximizing or product-maximizing objectives</li>
+<li>slack usage summaries</li>
+<li>final export-ready strategy tables</li>
+</ul>
+
+<h2 id="validatesinglekos"><code>validateSingleKOs</code></h2>
+<p>Test individual knockouts extracted from the predicted strategy pool. This is useful for understanding whether one TF alone explains most of the engineered phenotype or whether the effect depends on combinations.</p>
+<p><strong>Common outputs.</strong> single-KO growth and product ranges, often reported in a compact summary table.</p>
+
+<h2 id="runengineering"><code>runEngineering</code></h2>
+<p>Main engineering workflow. This function usually:</p>
+<ol>
+<li>build the WT selected context</li>
+<li>compute the reference biomass optimum</li>
+<li>maximize product under a growth floor</li>
+<li>construct <code>upsilon</code></li>
+<li>run the engineering MILP</li>
+<li>filter raw strategies</li>
+<li>validate strategies and optional single KOs</li>
+</ol>
+<p><strong>Primary outputs.</strong></p>
+<ul>
+<li>raw and filtered strategy tables</li>
+<li>validated strategy summaries</li>
+<li>single-KO validation results</li>
+<li>bookkeeping objects for WT and product reference solutions</li>
+</ul>
+
+<p><a href="index.html">Back to API home</a></p>
+</main>
+</body>
+</html>

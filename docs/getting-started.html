@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>getting-started</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #f44747; font-weight: bold; } /* Alert */
+    code span.an { color: #4ec9b0; font-style: italic; } /* Annotation */
+    code span.at { color: #9cdcfe; } /* Attribute */
+    code span.bn { color: #b5cea8; } /* BaseN */
+    code span.bu { color: #4ec9b0; } /* BuiltIn */
+    code span.cf { color: #c586c0; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #ce9178; } /* Char */
+    code span.cn { color: #569cd6; } /* Constant */
+    code span.co { color: #6a9955; font-style: italic; } /* Comment */
+    code span.cv { color: #6a9955; font-style: italic; } /* CommentVar */
+    code span.do { color: #6a9955; font-style: italic; } /* Documentation */
+    code span.dt { color: #4ec9b0; } /* DataType */
+    code span.dv { color: #b5cea8; } /* DecVal */
+    code span.er { color: #f44747; font-weight: bold; } /* Error */
+    code span.ex { color: #dcdcaa; } /* Extension */
+    code span.fl { color: #b5cea8; } /* Float */
+    code span.fu { color: #dcdcaa; } /* Function */
+    code span.im { color: #c586c0; } /* Import */
+    code span.in { color: #4ec9b0; font-style: italic; } /* Information */
+    code span.kw { color: #c586c0; font-weight: bold; } /* Keyword */
+    code span.op { color: #d4d4d4; } /* Operator */
+    code span.ot { color: #d4d4d4; } /* Other */
+    code span.pp { color: #c586c0; } /* Preprocessor */
+    code span.sc { color: #d7ba7d; } /* SpecialChar */
+    code span.ss { color: #ce9178; } /* SpecialString */
+    code span.st { color: #ce9178; } /* String */
+    code span.va { color: #9cdcfe; } /* Variable */
+    code span.vs { color: #ce9178; } /* VerbatimString */
+    code span.wa { color: #dcdcaa; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="assets/ocelot-docs.css" />
+</head>
+<body>
+<main>
+
+<nav><a href="README.html">Home</a> · <a href="getting-started.html">Getting started</a> · <a href="architecture.html">Architecture overview</a> · <a href="api/index.html">API</a> · <a href="examples.html">Examples</a> · <a href="manuals/OCELOT_Manual.html">Manual</a></nav>
+
+<header id="title-block-header">
+<h1 class="title">Getting started</h1>
+</header>
+
+<ul>
+<li><a href="#what-ocelot-expects" id="toc-what-ocelot-expects">What inputs OCELOT expects</a></li>
+<li><a href="#repository-layout" id="toc-repository-layout">Repository layout</a></li>
+<li><a href="#typical-matlab-setup" id="toc-typical-matlab-setup">Typical MATLAB setup</a></li>
+<li><a href="#minimal-unified-workflow" id="toc-minimal-unified-workflow">Minimal unified workflow</a></li>
+<li><a href="#choosing-a-mode" id="toc-choosing-a-mode">Choosing a mode</a>
+  <ul>
+  <li><a href="#knockout-mode" id="toc-knockout-mode">Knockout mode</a></li>
+  <li><a href="#engineering-mode" id="toc-engineering-mode">Engineering mode</a></li>
+  </ul></li>
+<li><a href="#common-parameters" id="toc-common-parameters">Common parameters</a></li>
+<li><a href="#a-first-e.-coli-ko-run" id="toc-a-first-e.-coli-ko-run">A first <i>E. coli</i> KO run</a></li>
+<li><a href="#a-first-engineering-run" id="toc-a-first-engineering-run">A first engineering run</a></li>
+<li><a href="#output-structure-at-a-glance" id="toc-output-structure-at-a-glance">Output structure at a glance</a></li>
+<li><a href="#troubleshooting-checklist" id="toc-troubleshooting-checklist">Troubleshooting checklist</a></li>
+</ul>
+
+<h2 id="what-ocelot-expects">What inputs OCELOT expects</h2>
+<p>OCELOT assumes three primary inputs:</p>
+<ol type="1">
+  <li>a <strong>COBRA-compatible metabolic model</strong></li>
+  <li>a <strong>gene expression table</strong> such as a gene count matrix with genes as rows and samples as columns</li>
+  <li>a <strong>gene-regulatory network (GRN)</strong> inferred by regularized regression, with target genes as rows and TFs as columns</li>
+</ol>
+<p>Optional inputs include:</p>
+<ul>
+<li>an essentiality table for TF knockout benchmarking</li>
+<li>species-specific medium definitions</li>
+<li>auto/mixo/heterotrophic configuration settings</li>
+<li>product reaction IDs for engineering runs</li>
+</ul>
+
+<h2 id="repository-layout">Repository layout</h2>
+<pre class="text"><code>.
+├── docs/
+├── manuscript/
+├── src/
+├── tutorials/
+└── README.md
+</code></pre>
+<p>Code and data for replicating the results from the manuscript are found in <code>manuscript/</code>. The source code is organized under <code>src/</code>, with one function per file. Runnable tutorials with sample code and data are available in the <code>tutorials/</code> directory. </p>
+
+<h2 id="typical-matlab-setup">Typical MATLAB setup</h2>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode matlab"><code class="sourceCode matlab"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="va">initCobraToolbox</span>(<span class="va">false</span>)<span class="op">;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="va">changeCobraSolver</span>(<span class="ss">&#39;gurobi&#39;</span><span class="op">,</span> <span class="ss">&#39;LP&#39;</span>)<span class="op">;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="va">changeCobraSolver</span>(<span class="ss">&#39;gurobi&#39;</span><span class="op">,</span> <span class="ss">&#39;MILP&#39;</span>)<span class="op">;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="va">changeCobraSolverParams</span>(<span class="ss">&#39;LP&#39;</span><span class="op">,</span> <span class="ss">&#39;feasTol&#39;</span><span class="op">,</span> <span class="fl">1e-9</span>)<span class="op">;</span></span></code></pre></div>
+<p>For mixed-integer engineering runs, Gurobi should be available for MILP solving.</p>
+
+<h2 id="minimal-unified-workflow">Minimal unified workflow</h2>
+<div class="sourceCode" id="cb3"><pre class="sourceCode matlab"><code class="sourceCode matlab"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="va">load</span>(<span class="ss">&#39;../Models/iML1515.mat&#39;</span>)<span class="op">;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="va">expression_data</span> <span class="op">=</span> <span class="va">readtable</span>(<span class="ss">&#39;../Data/Ecoli_count_matrix.csv&#39;</span><span class="op">,</span> <span class="op">...</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="ss">&#39;ReadRowNames&#39;</span><span class="op">,</span> <span class="va">true</span><span class="op">,</span> <span class="ss">&#39;VariableNamingRule&#39;</span><span class="op">,</span> <span class="ss">&#39;preserve&#39;</span>)<span class="op">;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="va">beta_df</span> <span class="op">=</span> <span class="va">readtable</span>(<span class="ss">&#39;../Data/Ecoli_GRN_lasso.csv&#39;</span><span class="op">,</span> <span class="op">...</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="ss">&#39;ReadRowNames&#39;</span><span class="op">,</span> <span class="va">true</span>)<span class="op">;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="va">params</span>.<span class="va">selectedReference</span> <span class="op">=</span> <span class="st">&quot;control__wt_glc&quot;</span><span class="op">;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="va">params</span>.<span class="va">growthType</span> <span class="op">=</span> <span class="ss">&#39;heterotrophic&#39;</span><span class="op">;</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="va">params</span>.<span class="va">biomassRxn</span> <span class="op">=</span> <span class="ss">&#39;BIOMASS_Ec_iML1515_core_75p37M&#39;</span><span class="op">;</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="va">params</span>.<span class="va">glucoseRxn</span> <span class="op">=</span> <span class="ss">&#39;EX_glc__D_e&#39;</span><span class="op">;</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="va">params</span>.<span class="va">glucoseUptake</span> <span class="op">=</span> <span class="op">-</span><span class="fl">10</span><span class="op">;</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="va">params</span>.<span class="va">mediumRxns</span> <span class="op">=</span> [<span class="st">&quot;EX_pi_e&quot;</span><span class="op">,</span><span class="st">&quot;EX_co2_e&quot;</span><span class="op">,</span><span class="st">&quot;EX_fe3_e&quot;</span><span class="op">,</span> <span class="op">...</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>                     <span class="st">&quot;EX_h_e&quot;</span><span class="op">,</span><span class="st">&quot;EX_mn2_e&quot;</span><span class="op">,</span><span class="st">&quot;EX_fe2_e&quot;</span>]<span class="op">;</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="va">params</span>.<span class="va">runKnockout</span> <span class="op">=</span> <span class="va">true</span><span class="op">;</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="va">params</span>.<span class="va">runEngineering</span> <span class="op">=</span> <span class="va">false</span><span class="op">;</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="va">results</span> <span class="op">=</span> <span class="va">OCELOT</span>(<span class="va">model</span><span class="op">,</span> <span class="va">expression_data</span><span class="op">,</span> <span class="va">beta_df</span><span class="op">,</span> <span class="va">params</span>)<span class="op">;</span></span></code></pre></div>
+
+<h2 id="choosing-a-mode">Choosing a mode</h2>
+<h3 id="knockout-mode">Knockout mode</h3>
+<p>Use knockout mode when you want to:</p>
+  <ul>
+  <li>simulate the effect of individual TF deletions</li>
+  <li>rank TFs by growth impact</li>
+  <li>compare predicted KO phenotypes against an essentiality benchmark</li>
+  </ul>
+
+<h3 id="engineering-mode">Engineering mode</h3>
+<p>Use engineering mode when you want to:</p>
+  <ul>
+  <li>search for TF perturbation strategies</li>
+  <li>enforce minimum growth and product constraints</li>
+  <li>retrieve multi-TF strategies and validate them</li>
+  </ul>
+
+<h2 id="common-parameters">Common parameters</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+  <col style="width: 50%" />
+</colgroup>
+<thead>
+  <tr class="header">
+    <th>Parameter</th>
+    <th>Meaning</th>
+  </tr>
+</thead>
+<tbody>
+  <tr class="odd">
+    <td><code>selectedReference</code></td>
+    <td>WT condition or reference sample to anchor the analysis</td>
+  </tr>
+  <tr class="even">
+    <td><code>growthType</code></td>
+    <td><code>heterotrophic</code>, <code>mixotrophic</code>, or <code>autotrophic</code></td>
+  </tr>
+  <tr class="odd">
+    <td><code>biomassRxn</code></td>
+    <td>Biomass reaction ID used as the growth objective</td>
+  </tr>
+  <tr class="even">
+    <td><code>thresholdSource</code></td>
+    <td>Whether thresholds come from TF expression or inferred
+    <code>z</code> values</td>
+  </tr>
+    <tr class="odd">
+    <td><code>thresholdSelection</code></td>
+    <td>Criterion used to choose the final WT threshold</td>
+  </tr>
+    <tr class="even">
+    <td><code>kappaStart</code> / <code>kappaMin</code></td>
+    <td>Slack penalty range scanned during WT fitting</td>
+  </tr>
+    <tr class="odd">
+    <td><code>performEssentialityEvaluation</code></td>
+    <td>Whether to compute ROC/confusion metrics after KO simulation</td>
+  </tr>
+    <tr class="even">
+    <td><code>validateStrategies</code></td>
+    <td>Whether to validate engineered TF states after MILP search</td>
+  </tr>
+    <tr class="odd">
+    <td><code>validateSingleKOs</code></td>
+    <td>Whether to test individual KOs extracted from engineering solutions</td>
+  </tr>
+</tbody>
+</table>
+
+<h2 id="a-first-e.-coli-ko-run">A first <i>E. coli</i> KO run</h2>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode matlab"><code class="sourceCode matlab"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="va">params</span>.<span class="va">runKnockout</span> <span class="op">=</span> <span class="va">true</span><span class="op">;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="va">params</span>.<span class="va">runEngineering</span> <span class="op">=</span> <span class="va">false</span><span class="op">;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="va">params</span>.<span class="va">performEssentialityEvaluation</span> <span class="op">=</span> <span class="va">true</span><span class="op">;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="va">params</span>.<span class="va">essentialityTable</span> <span class="op">=</span> <span class="va">essentialityTable</span><span class="op">;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="va">params</span>.<span class="va">essentialityGeneColumn</span> <span class="op">=</span> <span class="ss">&#39;Gene_ID&#39;</span><span class="op">;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="va">params</span>.<span class="va">essentialityLabelColumn</span> <span class="op">=</span> <span class="ss">&#39;Essentiality&#39;</span><span class="op">;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="va">params</span>.<span class="va">cutoffPerc</span> <span class="op">=</span> <span class="fl">0.1</span><span class="op">;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="va">params</span>.<span class="va">showPlots</span> <span class="op">=</span> <span class="st">&quot;cutoff&quot;</span><span class="op">;</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="va">results</span> <span class="op">=</span> <span class="va">OCELOT</span>(<span class="va">model</span><span class="op">,</span> <span class="va">expression_data</span><span class="op">,</span> <span class="va">beta_df</span><span class="op">,</span> <span class="va">params</span>)<span class="op">;</span></span></code></pre></div>
+
+<h2 id="a-first-engineering-run">A first engineering run</h2>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode matlab"><code class="sourceCode matlab"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="va">params</span>.<span class="va">runKnockout</span> <span class="op">=</span> <span class="va">false</span><span class="op">;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="va">params</span>.<span class="va">runEngineering</span> <span class="op">=</span> <span class="va">true</span><span class="op">;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="va">params</span>.<span class="va">prodRxn</span> <span class="op">=</span> <span class="ss">&#39;EX_ac_e&#39;</span><span class="op">;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="va">params</span>.<span class="va">maxPerturbations</span> <span class="op">=</span> <span class="fl">5</span><span class="op">;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="va">params</span>.<span class="va">maxIterations</span> <span class="op">=</span> <span class="fl">12</span><span class="op">;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="va">params</span>.<span class="va">flexBiomass</span> <span class="op">=</span> <span class="fl">0.5</span><span class="op">;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="va">params</span>.<span class="va">flexProduct</span> <span class="op">=</span> <span class="fl">0.5</span><span class="op">;</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="va">params</span>.<span class="va">validateStrategies</span> <span class="op">=</span> <span class="va">true</span><span class="op">;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="va">params</span>.<span class="va">validateSingleKOs</span> <span class="op">=</span> <span class="va">true</span><span class="op">;</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="va">results</span> <span class="op">=</span> <span class="va">OCELOT</span>(<span class="va">model</span><span class="op">,</span> <span class="va">expression_data</span><span class="op">,</span> <span class="va">beta_df</span><span class="op">,</span> <span class="va">params</span>)<span class="op">;</span></span></code></pre></div>
+
+<h2 id="output-structure-at-a-glance">Output structure at a glance</h2>
+<p>The exact nested structure depends on mode, but a typical unified result contains:</p>
+<ul>
+<li><code>results.knockout</code></li>
+<li><code>results.engineering</code></li>
+<li><code>results.context</code></li>
+<li><code>results.params</code></li>
+</ul>
+
+<p>Within these, common objects include:</p>
+<ul>
+<li><code>WT_results</code></li>
+<li><code>rmse_table</code></li>
+<li><code>best_threshold</code></li>
+<li><code>all_results</code></li>
+<li><code>metrics_all</code></li>
+<li><code>resultsTable</code></li>
+<li><code>final_results</code></li>
+<li><code>sKO_results</code></li>
+</ul>
+
+<h2 id="troubleshooting-checklist">Troubleshooting checklist</h2>
+<ul>
+<li>confirm TF names in <code>beta_df</code> exist in the expression table row names</li>
+<li>confirm target genes in <code>beta_df</code> overlap with model genes</li>
+<li>confirm biomass and product reaction IDs match the model exactly</li>
+<li>check that the selected WT reference exists after expression preprocessing</li>
+<li>for autotrophic organisms, verify that protected reactions and special constraints are correct</li>
+</ul>
+
+</main>
+</body>
+</html>

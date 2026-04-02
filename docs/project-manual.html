@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>OCELOT_Manual</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="assets/ocelot-docs.css" />
+</head>
+<body>
+<main>
+<nav><a href="README.html">Home</a> · <a href="getting-started.html">Getting started</a> · <a href="architecture.html">Architecture overview</a> · <a href="api/index.html">API</a> · <a href="examples.html">Examples</a> · <a href="project-manual.html">Manual</a></nav>
+<header id="title-block-header">
+<h1 class="title">OCELOT manual</h1>
+</header>
+
+<ul>
+<li><a href="#overview" id="toc-overview">Overview</a></li>
+<li><a href="#source-tree" id="toc-source-tree">Source tree</a></li>
+<li><a href="#core-workflow" id="toc-core-workflow">Core workflow</a>
+<ul>
+<li><a href="#prepare-the-metabolic-model"
+id="toc-prepare-the-metabolic-model">1. Prepare the metabolic
+model</a></li>
+<li><a href="#preprocess-expression-data"
+id="toc-preprocess-expression-data">2. Preprocess expression
+data</a></li>
+<li><a href="#build-the-regulatory-context"
+id="toc-build-the-regulatory-context">3. Build the regulatory
+context</a></li>
+<li><a href="#scan-wt-thresholds" id="toc-scan-wt-thresholds">4. Scan WT
+thresholds</a></li>
+<li><a href="#run-knockout-or-engineering-mode"
+id="toc-run-knockout-or-engineering-mode">5. Run knockout or engineering
+mode</a></li>
+<li><a href="#evaluate-or-validate-predictions"
+id="toc-evaluate-or-validate-predictions">6. Evaluate or validate
+predictions</a></li>
+</ul></li>
+<li><a href="#main-outputs" id="toc-main-outputs">Main outputs</a>
+<ul>
+<li><a href="#knockout-outputs" id="toc-knockout-outputs">Knockout
+outputs</a></li>
+<li><a href="#engineering-outputs"
+id="toc-engineering-outputs">Engineering outputs</a></li>
+</ul></li>
+<li><a href="#parameter-notes" id="toc-parameter-notes">Parameter
+notes</a>
+<ul>
+<li><a href="#threshold-behavior" id="toc-threshold-behavior">Threshold
+behavior</a></li>
+<li><a href="#threshold-selection-behavior"
+id="toc-threshold-selection-behavior">Threshold selection
+behavior</a></li>
+<li><a href="#evaluation-behavior"
+id="toc-evaluation-behavior">Evaluation behavior</a></li>
+</ul></li>
+<li><a href="#practical-guidance" id="toc-practical-guidance">Practical
+guidance</a>
+<ul>
+<li><a href="#when-to-use-the-unified-entry-point"
+id="toc-when-to-use-the-unified-entry-point">When to use the unified
+entry point</a></li>
+<li><a href="#when-to-call-lower-level-functions-directly"
+id="toc-when-to-call-lower-level-functions-directly">When to call
+lower-level functions directly</a></li>
+</ul></li>
+</ul>
+
+<h2 id="overview">Overview</h2>
+<p><strong>OCELOT</strong> couples a transcriptional regulatory layer to
+a genome-scale metabolic model so that transcription factor
+perturbations can be analyzed in a metabolic context.</p>
+<p>The code supports two main tasks:</p>
+<ol type="1">
+<li><strong>TF knockout simulation</strong></li>
+<li><strong>Metabolic engineering strategy search</strong></li>
+</ol>
+<p>The reorganized codebase separates each logical step into a dedicated
+function under <code>src/</code>.</p>
+<h2 id="source-tree">Source tree</h2>
+<pre class="text"><code>src/
+├── applyBoundChangeList.m
+├── buildConditionRegState.m
+├── buildRegulatoryContext.m
+├── buildThresholdState.m
+├── buildUpsilon.m
+├── chooseThresholdValues.m
+├── configureAutotrophicModel.m
+├── configureBaseModel.m
+├── filterStrategies.m
+├── joinCellString.m
+├── OCELOT.m
+├── plotEvaluation.m
+├── preprocessExpressionData.m
+├── printEvaluationSummary.m
+├── replaceInfWithFinite.m
+├── resolveEssentialityColumns.m
+├── runEngineering.m
+├── runEngineeringMILP.m
+├── runEssentialityEvaluation.m
+├── runKnockout.m
+├── runWTThresholdSelection.m
+├── selectBestThreshold.m
+├── solveKOByRatio.m
+├── solveProblemWithScaledBounds.m
+├── toCellstr.m
+├── toStringArray.m
+├── validateSingleKOs.m
+└── validateStrategies.m</code></pre>
+<h2 id="core-workflow">Core workflow</h2>
+<h3 id="prepare-the-metabolic-model">1. Prepare the metabolic model</h3>
+<p>For heterotrophic organisms, this usually means:</p>
+<ul>
+<li>close exchanges by default</li>
+<li>open a defined medium</li>
+<li>open the carbon source</li>
+<li>set biomass as the objective</li>
+</ul>
+<p>For autotrophic organisms, this additionally means:</p>
+<ul>
+<li>enabling photon uptake</li>
+<li>constraining inorganic carbon exchange</li>
+<li>disabling alternate biomass modes</li>
+<li>protecting setup-specific reactions from regulatory scaling</li>
+</ul>
+<h3 id="preprocess-expression-data">2. Preprocess expression data</h3>
+<p>Expression tables are averaged by condition after replicate suffixes
+are removed from sample names.</p>
+<h3 id="build-the-regulatory-context">3. Build the regulatory
+context</h3>
+<p>OCELOT identifies the overlap between:</p>
+<ul>
+<li>TFs in <code>beta_df</code></li>
+<li>target genes in <code>beta_df</code></li>
+<li>genes in the expression matrix</li>
+<li>genes present in the metabolic model</li>
+</ul>
+<p>From there it builds:</p>
+<ul>
+<li>filtered target expression vectors</li>
+<li>filtered coefficient matrices</li>
+<li>the reaction mapping matrix <code>gene_to_rxn_map</code></li>
+<li>the base TF expression vector for the selected WT condition</li>
+</ul>
+<h3 id="scan-wt-thresholds">4. Scan WT thresholds</h3>
+<p>Threshold candidates are generated from either:</p>
+<ul>
+<li>TF expression values, or</li>
+<li>inferred <code>z</code> values</li>
+</ul>
+<p>For each threshold, OCELOT builds a WT state, applies scaled reaction
+bounds, solves a slack-relaxed optimization problem, and records fit
+statistics. The best threshold is selected according to the requested
+criterion.</p>
+<h3 id="run-knockout-or-engineering-mode">5. Run knockout or engineering
+mode</h3>
+<h4 id="knockout-mode">Knockout mode</h4>
+<p>Each TF is knocked out relative to the WT regulatory state. The
+resulting reaction-level capacity ratios are used to solve the KO
+metabolic problem.</p>
+<h4 id="engineering-mode">Engineering mode</h4>
+<p>The WT TF state becomes the reference for a mixed-integer problem
+that searches for perturbation strategies under growth and product
+requirements.</p>
+<h3 id="evaluate-or-validate-predictions">6. Evaluate or validate
+predictions</h3>
+<p>KO results can be evaluated against a TF essentiality table.
+Engineering strategies can be validated by fixing the engineered TF
+state and re-optimizing growth and product, with optional single-KO
+validation for TFs that appear in the strategy set.</p>
+<h2 id="main-outputs">Main outputs</h2>
+<h3 id="knockout-outputs">Knockout outputs</h3>
+<p>Common knockout outputs include:</p>
+<ul>
+<li><code>WT_results</code></li>
+<li><code>rmse_table</code></li>
+<li><code>best_threshold</code></li>
+<li><code>KO_growth</code></li>
+<li><code>KO_fluxes</code></li>
+<li><code>has_coverage</code></li>
+<li><code>covered_TF_list</code></li>
+<li><code>metrics_all</code></li>
+<li><code>metrics_cutoff</code></li>
+</ul>
+<h3 id="engineering-outputs">Engineering outputs</h3>
+<p>Common engineering outputs include:</p>
+<ul>
+<li><code>WT_results</code></li>
+<li><code>resultsTable</code></li>
+<li><code>filteredResultsTable</code></li>
+<li><code>final_results</code></li>
+<li><code>sKO_results</code></li>
+</ul>
+<h2 id="parameter-notes">Parameter notes</h2>
+<h3 id="threshold-behavior">Threshold behavior</h3>
+<ul>
+<li><code>thresholdSource = 'tf_expression'</code> is common for
+heterotrophic organisms</li>
+<li><code>thresholdSource = 'z_vector'</code> is often useful in
+autotrophic setups</li>
+</ul>
+<h3 id="threshold-selection-behavior">Threshold selection behavior</h3>
+<p>Common options include:</p>
+<ul>
+<li><code>RMSE</code></li>
+<li><code>Growth</code></li>
+<li><code>Discriminability</code></li>
+<li><code>Composite</code></li>
+</ul>
+<h3 id="evaluation-behavior">Evaluation behavior</h3>
+<ul>
+<li><code>performEssentialityEvaluation = true</code> enables KO
+benchmarking</li>
+<li><code>validateStrategies = true</code> enables engineering
+re-solving for predicted multi-TF strategies</li>
+<li><code>validateSingleKOs = true</code> enables extracted single-KO
+checks</li>
+</ul>
+<h2 id="practical-guidance">Practical guidance</h2>
+<h3 id="when-to-use-the-unified-entry-point">When to use the unified
+entry point</h3>
+<p>Use <code>OCELOT</code> when you want one clean top-level call and
+centralized mode selection.</p>
+<h3 id="when-to-call-lower-level-functions-directly">When to call
+lower-level functions directly</h3>
+<p>Call lower-level functions when you want to:</p>
+<ul>
+<li>debug a single stage</li>
+<li>benchmark alternative threshold strategies</li>
+<li>replace one solver step without changing the rest of the
+workflow</li>
+<li>build custom wrappers for a new organism</li>
+</ul>
+
+</main>
+</body>
+</html>

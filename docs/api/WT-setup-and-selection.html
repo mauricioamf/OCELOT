@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>OCELOT API – WT setup and selection</title>
+  <link rel="stylesheet" href="../assets/ocelot-docs.css" />
+</head>
+<body>
+<main>
+<nav><a href="../README.html">Home</a> · <a href="../getting-started.html">Getting started</a> · <a href="../architecture.html">Architecture overview</a> · <a href="../api/index.html">API</a> · <a href="../examples.html">Examples</a> · <a href="../project-manual.html">Manual</a></nav>
+
+<header id="title-block-header">
+<h1 class="title">API: WT setup and selection</h1>
+</header>
+
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#configurebasemodel">configureBaseModel</a></li>
+<li><a href="#configureautotrophicmodel">configureAutotrophicModel</a></li>
+<li><a href="#preprocessexpressiondata">preprocessExpressionData</a></li>
+<li><a href="#buildregulatorycontext">buildRegulatoryContext</a></li>
+<li><a href="#choosethresholdvalues">chooseThresholdValues</a></li>
+<li><a href="#buildthresholdstate">buildThresholdState</a></li>
+<li><a href="#runwtthresholdselection">runWTThresholdSelection</a></li>
+<li><a href="#selectbestthreshold">selectBestThreshold</a></li>
+</ul>
+
+<h2 id="overview">Overview</h2>
+<p>This block of the API prepares the wild-type model, builds the regulatory mapping from expression and beta coefficients, scans threshold candidates, and selects the best threshold for downstream knockout or engineering analysis.</p>
+<p>In practice, this stage defines the WT context reused by the rest of OCELOT.</p>
+
+<h2 id="configurebasemodel"><code>configureBaseModel</code></h2>
+<p>Build the species and growth-mode-specific baseline model for standard workflows. This typically includes opening the chosen medium, setting objective reactions, applying glucose uptake when relevant, and protecting reactions that should not be rescaled by regulatory logic.</p>
+<p><strong>Typical inputs.</strong></p>
+<ul>
+<li>COBRA model</li>
+<li><code>params.growthType</code></li>
+<li><code>params.biomassRxn</code></li>
+<li><code>params.mediumRxns</code></li>
+<li><code>params.glucoseRxn</code> and <code>params.glucoseUptake</code></li>
+<li>optional bound-change list</li>
+</ul>
+<p><strong>Typical outputs.</strong> configured WT model, biomass index, WT FBA solution, and bookkeeping fields such as protected reaction indices.</p>
+
+<h2 id="configureautotrophicmodel"><code>configureAutotrophicModel</code></h2>
+<p>Apply autotrophic-specific preparation that would be awkward to pack into a generic base-model helper. This is especially relevant for cyanobacterial workflows where photons, bicarbonate, CO<sub>2</sub>, and photosynthetic or respiratory reaction edits must be coordinated carefully.</p>
+<p><strong>Typical behavior.</strong></p>
+<ul>
+<li>activate the autotrophic biomass objective</li>
+<li>disable mixotrophic or heterotrophic biomass reactions</li>
+<li>open photon uptake</li>
+<li>set bicarbonate and CO<sub>2</sub> exchange assumptions</li>
+<li>disable reactions that should be inactive under the chosen setup</li>
+<li>optionally perform auxiliary optimizations to estimate photon demand</li>
+</ul>
+
+<h2 id="preprocessexpressiondata"><code>preprocessExpressionData</code></h2>
+<p>Prepare condition-level expression tables from raw replicate-level input. This function usually strips replicate suffixes, groups samples by condition name, and collapses replicates using the package’s chosen summary rule.</p>
+<p><strong>Why it matters.</strong> Threshold scanning and downstream condition matching rely on consistent condition labels.</p>
+
+<h2 id="buildregulatorycontext"><code>buildRegulatoryContext</code></h2>
+<p>Construct the regulatory objects needed by the rest of the pipeline. This generally includes:</p>
+<ul>
+<li>TF list</li>
+<li>target gene list</li>
+<li>filtered beta matrix aligned to model genes</li>
+<li>target expression vector for the selected reference</li>
+<li>reaction-to-target mapping via <code>rxnGeneMat</code></li>
+</ul>
+<p><strong>Typical outputs.</strong> A single context struct that lets the rest of the pipeline avoid repeated remapping work.</p>
+
+<h2 id="choosethresholdvalues"><code>chooseThresholdValues</code></h2>
+<p>Generate threshold candidates. Depending on <code>params.thresholdSource</code>, thresholds may come from TF expression values or from reconstructed latent TF activity values such as <code>z_vector</code>.</p>
+<p><strong>Common choices.</strong></p>
+<ul>
+<li><code>'tf_expression'</code> for simpler expression-threshold workflows</li>
+<li><code>'z_vector'</code> for workflows that threshold the inferred TF activity state</li>
+</ul>
+
+<h2 id="buildthresholdstate"><code>buildThresholdState</code></h2>
+<p>Given one threshold candidate, build the threshold-specific regulatory state. This usually includes:</p>
+<ul>
+<li>binarized TF state</li>
+<li>continuous or masked TF activity vector</li>
+<li>target-level regulatory effect</li>
+<li>reaction-level activity vector</li>
+<li>normalized WT scaling table</li>
+</ul>
+<p>This function is the bridge between abstract threshold candidates and the concrete regulatory scaling used by optimization.</p>
+
+<h2 id="runwtthresholdselection"><code>runWTThresholdSelection</code></h2>
+<p>Scan thresholds and solve the WT scaled-bound problems needed to evaluate them. The main purpose is to determine which threshold yields a reasonable compromise among fit quality, growth retention, and optional discriminability criteria.</p>
+<p><strong>Typical tasks.</strong></p>
+<ul>
+<li>loop over threshold candidates</li>
+<li>build threshold-specific WT scaling</li>
+<li>solve slack-penalized optimization problems</li>
+<li>store biomass, kappa, and target reconstruction information</li>
+<li>track infeasible runs and stop early if needed</li>
+</ul>
+
+<h2 id="selectbestthreshold"><code>selectBestThreshold</code></h2>
+<p>Choose the final threshold from the threshold scan. Supported logic commonly includes:</p>
+<ul>
+<li><code>'Growth'</code> for highest feasible WT growth</li>
+<li><code>'RMSE'</code> for best target reconstruction</li>
+<li>composite criteria when available</li>
+</ul>
+<p><strong>Typical output.</strong> best threshold identifier plus summary fields such as RMSE, R², growth, and selected kappa.</p>
+
+<p><a href="index.html">Back to API home</a></p>
+</main>
+</body>
+</html>
