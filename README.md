@@ -13,17 +13,18 @@ The **O**ptimization **C**oupling **E**xpression **L**andscape **o**f **T**ransc
 
 * MATLAB (tested with version 2025a)
 * [COBRA Toolbox 3](https://opencobra.github.io/cobratoolbox/stable/index.html)
-* [RAVEN Toolbox 2](https://github.com/SysBioChalmers/RAVEN/releases/tag/v2.8.3)
+* [RAVEN Toolbox 2](https://github.com/SysBioChalmers/RAVEN)
 * Gurobi solver (tested with version 12.0.1)
 
 
 ### How to install:
 
-* Clone the repository in the desired directory or download the [the latest release](https://github.com/mauricioamf/OCELOT/releases) as a ZIP file. Add folder to MATLAB path before running the code.
+* Clone the repository in the desired directory or download the [the latest release](https://github.com/mauricioamf/OCELOT/releases) as a ZIP file.
+* Add folder to MATLAB path.
 
 ## How to use
 
-The [`Protocol.m`](https://github.com/mauricioamf/OCELOT/blob/main/Protocol.m) file contains step-by-step instructions on how to run OCELOT using example data. Please refer to the documentation on the `docs/` folder for detailed instructions.
+The [`ExampleCode.m`](https://github.com/mauricioamf/OCELOT/blob/main/tutorials/ExampleCode.m) file contains an example on how to run OCELOT. Please refer to the documentation on the `docs/` folder for detailed, step-by-step instructions.
 
 The folder `manuscript/`contains the code and data used in the manuscript for generating the presented results.
 
