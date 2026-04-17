@@ -24,7 +24,7 @@ The **O**ptimization **C**oupling **E**xpression **L**andscape **o**f **T**ransc
 
 ## How to use
 
-The [`ExampleCode.m`](https://github.com/mauricioamf/OCELOT/blob/tutorials/ExampleCode.m) file contains an example on how to run OCELOT. Please refer to the documentation on the `docs/` folder for detailed, step-by-step instructions.
+The [`ExampleCode.m`](https://github.com/mauricioamf/OCELOT/blob/main/tutorials/ExampleCode.m) file contains an example on how to run OCELOT. Please refer to the documentation on the `docs/` folder for detailed, step-by-step instructions.
 
 The folder `manuscript/`contains the code and data used in the manuscript for generating the presented results.
 
