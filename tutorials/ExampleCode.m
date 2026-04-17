@@ -1,7 +1,9 @@
-%% Initial configuration
+%% Running OCELOT for TF essentiality prediction
+
 % initCobraToolbox(false);
 % changeCobraSolver('gurobi', 'LP');
 % changeCobraSolverParams('LP', 'feasTol', 1e-9);
+
 clear
 
 load('../manuscript/Models/iML1515.mat');
@@ -36,10 +38,12 @@ params.runEngineering = false;
 
 results = OCELOT(model, expression_data, beta_df, params);
 
-%% Initial configuration
+%% Running OCELOT for predicting metabolic engineering strategies
+
 % initCobraToolbox(false);
 % changeCobraSolver('gurobi', 'LP');
 % changeCobraSolverParams('LP', 'feasTol', 1e-9);
+
 clear
 
 load('../manuscript/Models/iML1515.mat');
