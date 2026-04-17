@@ -19,11 +19,12 @@ The **O**ptimization **C**oupling **E**xpression **L**andscape **o**f **T**ransc
 
 ### How to install:
 
-* Clone the repository in the desired directory or download the [the latest release](https://github.com/mauricioamf/OCELOT/releases) as a ZIP file. Add folder to MATLAB path before running the code.
+* Clone the repository in the desired directory or download the [the latest release](https://github.com/mauricioamf/OCELOT/releases) as a ZIP file.
+* Add folder to MATLAB path.
 
 ## How to use
 
-The [`Protocol.m`](https://github.com/mauricioamf/OCELOT/blob/main/Protocol.m) file contains step-by-step instructions on how to run OCELOT using example data. Please refer to the documentation on the `docs/` folder for detailed instructions.
+The [`ExampleCode.m`](https://github.com/mauricioamf/OCELOT/blob/tutorials/ExampleCode.m) file contains an example on how to run OCELOT. Please refer to the documentation on the `docs/` folder for detailed, step-by-step instructions.
 
 The folder `manuscript/`contains the code and data used in the manuscript for generating the presented results.
 
