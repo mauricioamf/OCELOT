@@ -33,7 +33,6 @@ function results = runKnockout(model, expression_data, beta_df, params)
 %   .HCO3Uptake                    default -3.7
 %   .autotrophicOffBiomassRxns     default ["Ec_biomass_SynHetero","Ec_biomass_SynMixo"]
 %   .autotrophicDisableRxns        Synechocystis-specific reactions constrained to zero
-%   .fnorRxn                       default 'FNOR'
 %
 % Optional OCELOT params
 %   .performEssentialityEvaluation default true
@@ -218,7 +217,6 @@ function params = applyDefaults(params)
     defaults.co2Rxn             = 'EX_co2_e';
     defaults.h2co3TransportRxn  = 'H2CO3_NAt_syn';
     defaults.HCO3Uptake         = -3.7;
-    defaults.fnorRxn            = 'FNOR';
     defaults.autotrophicOffBiomassRxns = ["Ec_biomass_SynHetero","Ec_biomass_SynMixo"];
     defaults.autotrophicDisableRxns = [ ...
         "CBFC2ub","CBFC2pb","CYO1b_syn","CYO1bpp_syn","PSI_2a", ...

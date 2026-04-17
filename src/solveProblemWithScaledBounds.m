@@ -1,4 +1,5 @@
-function [biomass, gp, result, kappa] = solveProblemWithScaledBounds(model, biomass_idx, yvec, gene_to_rxn_map, protectedRxnIdx, mu, kappaStart, kappaMin, kappaDecay)
+function [biomass, gp, result, kappa] = solveProblemWithScaledBounds(model, biomass_idx, yvec, gene_to_rxn_map, protectedRxnIdx, mu, rxnIDs, kappaStart, kappaMin, kappaDecay)
+    
     S = sparse(model.S);
     [m, n] = size(S);
     lb_base = model.lb;
@@ -12,23 +13,24 @@ function [biomass, gp, result, kappa] = solveProblemWithScaledBounds(model, biom
 
     yvec(~isfinite(yvec)) = 1;
 
-    for i = 1:n
-        if isProtected(i)
-            continue;
-        end
-        if ~any(gene_to_rxn_map(i,:))
-            continue;
-        end
+    for i = 1:numel(rxnIDs)
+        rxn = rxnIDs{i};
+        idx = find(strcmp(model.rxns, rxn), 1);
+
+        if isProtected(idx), continue; end
+        if ~any(gene_to_rxn_map(idx,:)), continue; end
+        if isempty(idx), continue; end
+        if gene_to_rxn_map(idx,:) == 0, continue; end % reaction is unregulated
 
         y = yvec(i);
 
-        if abs(lb_base(i)) > 1e-6 && abs(ub_base(i)) > 1e-6
-            lbp(i) = max(lb_base(i) * y, -1000);
-            ubp(i) = min(ub_base(i) * y,  1000);
-        elseif lb_base(i) < -1e-6
-            lbp(i) = max(lb_base(i) * y, -1000);
-        elseif ub_base(i) > 1e-6
-            ubp(i) = min(ub_base(i) * y,  1000);
+        if abs(lb_base(idx)) > 1e-6 && abs(ub_base(idx)) > 1e-6
+            lbp(idx) = max(lb_base(idx) * y, -1000);
+            ubp(idx) = min(ub_base(idx) * y,  1000);
+        elseif lb_base(idx) < -1e-6
+            lbp(idx) = max(lb_base(idx) * y, -1000);
+        elseif ub_base(idx) > 1e-6
+            ubp(idx) = min(ub_base(idx) * y,  1000);
         end
     end
 
@@ -48,6 +50,7 @@ function [biomass, gp, result, kappa] = solveProblemWithScaledBounds(model, biom
     kappa = NaN;
 
     kappaLoop = kappaStart;
+    
     while kappaLoop >= kappaMin
         gp.A = sparse([ ...
             S,          sparse(m,n),      sparse(m,n); ...

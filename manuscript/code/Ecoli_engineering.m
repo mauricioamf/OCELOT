@@ -318,7 +318,7 @@ for tr = 1:length(threshold_names)
 
         if infeas_count >= max_infeas
             fprintf('\nStopping WT simulations after %d consecutive infeasible thresholds.\n', max_infeas);
-            break;
+            % break;
         end
     end
 end
@@ -841,8 +841,8 @@ for z = 1:height(resultsTableFilter)
     
     model_val_bio.obj = zeros(nVars_val, 1);
     model_val_bio.obj(v0_val + biomass_idx) = mu;
-    model_val_bio.obj(a0_val+1 : b0_val) = -kappa_val;
-    model_val_bio.obj(b0_val+1 : z0_val) = -kappa_val;
+    % model_val_bio.obj(a0_val+1 : b0_val) = -kappa_val;
+    % model_val_bio.obj(b0_val+1 : z0_val) = -kappa_val;
     
     params.OutputFlag = 0;
     result_val_bio = gurobi(model_val_bio, params);
@@ -871,8 +871,8 @@ for z = 1:height(resultsTableFilter)
     model_val_prod = model_val_bio;
     model_val_prod.obj = zeros(nVars_val, 1);
     model_val_prod.obj(v0_val + prod_idx) = 1;
-    model_val_bio.obj(a0_val+1 : b0_val) = -kappa;
-    model_val_bio.obj(b0_val+1 : z0_val) = -kappa;
+    % model_val_prod.obj(a0_val+1 : b0_val) = -kappa_val;
+    % model_val_prod.obj(b0_val+1 : z0_val) = -kappa_val;
    
     result_val_prod = gurobi(model_val_prod, params);
     
@@ -881,8 +881,8 @@ for z = 1:height(resultsTableFilter)
         biomass_val = v_sol(biomass_idx);
         product_val = v_sol(prod_idx);
 
-        alpha_vals = result_val_bio.x(nRxns_val+1:2*nRxns_val);
-        beta_vals = result_val_bio.x(2*nRxns_val+1:3*nRxns_val);
+        alpha_vals = result_val_prod.x(nRxns_val+1:2*nRxns_val);
+        beta_vals = result_val_prod.x(2*nRxns_val+1:3*nRxns_val);
         num_slacks = sum(alpha_vals > 1e-6 | beta_vals > 1e-6);
 
         growth_val_prod(z) = biomass_val;
@@ -999,7 +999,7 @@ final_results = [WTresults; final_results];
 % Export
 metName = model.metNames(find(model.S(:,prod_idx)));
 exportFilename = strcat('Ecoli_strategies_', metName, '.xlsx');
-writetable(final_results, exportFilename{1,1}, "FileType", "spreadsheet")
+% writetable(final_results, exportFilename{1,1}, "FileType", "spreadsheet")
 
 %% Knockout each predicted TF individually (single KO)
 fprintf('\n--- Validating Single Knockouts ---\n');
@@ -1187,7 +1187,7 @@ sKO_results.Min_growth  = growth_sKO_prod;
 sKO_results.Max_product = prod_sKO_prod;
 
 exportFilename_sKO = strcat('Ecoli_strategies_sKO_', metName, '.xlsx');
-writetable(sKO_results, exportFilename_sKO, "FileType", "spreadsheet")
+% writetable(sKO_results, exportFilename_sKO, "FileType", "spreadsheet")
 
 %% Analysis for Single-KO Strategies
 fprintf('\n--- Starting single TF KO Analysis ---\n');
@@ -1302,7 +1302,7 @@ for s = 1:height(resultsTableFilter)
 end
 
 fileName_sKO = strcat('Ecoli_singleKO_', metName{1,1}, '.xlsx');
-writetable(sKO_results, fileName_sKO, "FileType", "spreadsheet");
+% writetable(sKO_results, fileName_sKO, "FileType", "spreadsheet");
 
 %% Leave-One-Out (LOO) Analysis for Multi-KO Strategies
 fprintf('\n--- Starting Leave-One-Out (LOO) Analysis ---\n');
@@ -1406,7 +1406,7 @@ for s = 1:height(resultsTableFilter)
 end
 
 fileName_loo = strcat('Ecoli_leaveOneOut_', metName{1,1}, '.xlsx');
-writetable(loo_results, fileName_loo, "FileType", "spreadsheet");
+% writetable(loo_results, fileName_loo, "FileType", "spreadsheet");
 
 %% Production envelopes analysis
 fprintf('\n--- Starting Production Envelope Analysis ---\n');
@@ -1626,19 +1626,19 @@ metName = model.metNames(find(model.S(:,prod_idx)));
 if ~isempty(table_env_multi)
     table_env_multi.Metabolite(:,1) = metName;
     fileName_prod_mKO = strcat('Prod_envelope_multi_', metName{1,1}, '.xlsx');
-    writetable(table_env_multi, fileName_prod_mKO, "FileType", "spreadsheet")
+    % writetable(table_env_multi, fileName_prod_mKO, "FileType", "spreadsheet")
 end
 
 if ~isempty(table_env_single)
     table_env_single.Metabolite(:,1) = metName;
     fileName_prod_sKO = strcat('Prod_envelope_sKO_', metName{1,1}, '.xlsx');
-    writetable(table_env_single, fileName_prod_sKO, "FileType", "spreadsheet")
+    % writetable(table_env_single, fileName_prod_sKO, "FileType", "spreadsheet")
 end
 
 if ~isempty(table_env_loo)
     table_env_loo.Metabolite(:,1) = metName;
     fileName_prod_loo = strcat('Prod_envelope_LOO_', metName{1,1}, '.xlsx');
-    writetable(table_env_loo, fileName_prod_loo, "FileType", "spreadsheet")
+    % writetable(table_env_loo, fileName_prod_loo, "FileType", "spreadsheet")
 end
 
 %%

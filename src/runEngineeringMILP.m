@@ -8,7 +8,10 @@ function [resultsTable, results_all] = runEngineeringMILP(modelWT_FBA, biomass_i
     z0_off = b0 + nRxns;
     nVars  = z0_off + nTF;
 
-    vtype = [repmat('C', nRxns,1); repmat('C', nRxns,1); repmat('C', nRxns,1); repmat('B', nTF,1)];
+    vtype = [repmat('C', nRxns,1); 
+             repmat('C', nRxns,1); 
+             repmat('C', nRxns,1); 
+             repmat('B', nTF,1) ];
 
     gparams = struct();
     gparams.OutputFlag = 0;
@@ -84,8 +87,13 @@ function [resultsTable, results_all] = runEngineeringMILP(modelWT_FBA, biomass_i
         rhs = [rhs; rhs_perturb];
         sen = [sen; '<'];
 
-        lb = [lb_base; zeros(2*nRxns,1); zeros(nTF,1)];
-        ub = [ub_base; inf(2*nRxns,1); ones(nTF,1)];
+        lb = [ lb_base; 
+               zeros(2*nRxns,1); 
+               zeros(nTF,1)   ];
+
+        ub = [ ub_base; 
+               inf(2*nRxns,1); 
+               ones(nTF,1)  ];
 
         for iteration = 1:params.maxIterations
             A_with_cuts = A;

@@ -12,7 +12,10 @@ The **O**ptimization **C**oupling **E**xpression **L**andscape **o**f **T**ransc
 ### Dependencies:
 
 * MATLAB (tested with version 2025a)
+* [COBRA Toolbox 3](https://opencobra.github.io/cobratoolbox/stable/index.html)
+* [RAVEN Toolbox 2](https://github.com/SysBioChalmers/RAVEN/releases/tag/v2.8.3)
 * Gurobi solver (tested with version 12.0.1)
+
 
 ### How to install:
 

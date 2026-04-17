@@ -12,7 +12,7 @@ function results = OCELOT(model, expression_data, beta_df, params)
 %   params           struct with OCELOT settings
 %
 % Task flags (both optional)
-%   .runTFKnockout   default true
+%   .runKnockout   default true
 %   .runEngineering  default false
 %
 % Evaluation / validation flags
@@ -36,7 +36,7 @@ function results = OCELOT(model, expression_data, beta_df, params)
 %       .engineering  result from runOCELOTEngineering (if requested)
 %
 % Example
-%   params.runTFKnockout = true;
+%   params.runKnockout = true;
 %   params.runEngineering = true;
 %   params.performEssentialityEvaluation = true;
 %   params.validateStrategies = true;
@@ -48,20 +48,20 @@ function results = OCELOT(model, expression_data, beta_df, params)
 
     params = applyUnifiedDefaults(params);
 
-    if ~params.runTFKnockout && ~params.runEngineering
-        error('At least one task must be enabled: params.runTFKnockout or params.runEngineering.');
+    if ~params.runKnockout && ~params.runEngineering
+        error('At least one task must be enabled: params.runKnockout or params.runEngineering.');
     end
 
     results = struct();
     results.paramsUsed = params;
     results.tasks = struct( ...
-        'runTFKnockout', params.runTFKnockout, ...
+        'runKnockout', params.runKnockout, ...
         'runEngineering', params.runEngineering, ...
         'performEssentialityEvaluation', params.performEssentialityEvaluation, ...
         'validateStrategies', params.validateStrategies);
 
     % Run TF knockout workflow (including optional manuscript-style evaluation)
-    if params.runTFKnockout
+    if params.runKnockout
         koParams = params;
         koParams.performEssentialityEvaluation = params.performEssentialityEvaluation;
         results.knockout = runKnockout(model, expression_data, beta_df, koParams);
@@ -79,7 +79,7 @@ function results = OCELOT(model, expression_data, beta_df, params)
     end
 
     % Convenience aliases to reduce downstream code changes
-    if params.runTFKnockout
+    if params.runKnockout
         results.WT_results_KO         = results.knockout.WT_results;
         results.rmse_table_KO         = results.knockout.rmse_table;
         results.best_threshold_KO     = results.knockout.best_threshold;
@@ -104,7 +104,7 @@ function results = OCELOT(model, expression_data, beta_df, params)
 end
 
 function params = applyUnifiedDefaults(params)
-    defaults.runTFKnockout = true;
+    defaults.runKnockout = true;
     defaults.runEngineering = false;
     defaults.performEssentialityEvaluation = true;
     defaults.validateStrategies = true;

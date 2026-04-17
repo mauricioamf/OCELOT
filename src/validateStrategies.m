@@ -89,8 +89,8 @@ function final_results = validateStrategies(modelWT_FBA, biomass_idx, prod_idx, 
         model_val_bio.modelsense = 'max';
         model_val_bio.obj = zeros(nVars,1);
         model_val_bio.obj(v0 + biomass_idx) = params.mu;
-        model_val_bio.obj(a0+1 : b0) = -kappa_val;
-        model_val_bio.obj(b0+1 : z0_off) = -kappa_val;
+        % model_val_bio.obj(a0+1 : b0) = -kappa_val;
+        % model_val_bio.obj(b0+1 : z0_off) = -kappa_val;
 
         result_val_bio = gurobi(model_val_bio, gparams);
 
@@ -112,8 +112,8 @@ function final_results = validateStrategies(modelWT_FBA, biomass_idx, prod_idx, 
         model_val_prod = model_val_bio;
         model_val_prod.obj = zeros(nVars,1);
         model_val_prod.obj(v0 + prod_idx) = 1;
-        model_val_prod.obj(a0+1 : b0) = -kappa_val;
-        model_val_prod.obj(b0+1 : z0_off) = -kappa_val;
+        % model_val_prod.obj(a0+1 : b0) = -kappa_val;
+        % model_val_prod.obj(b0+1 : z0_off) = -kappa_val;
 
         result_val_prod = gurobi(model_val_prod, gparams);
 

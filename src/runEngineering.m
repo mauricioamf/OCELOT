@@ -1,5 +1,5 @@
 function results = runEngineering(model, expression_data, beta_df, params)
-% runOCELOTEngineering
+% runEngineering
 % Self-contained OCELOT engineering workflow with support for heterotrophic,
 % mixotrophic, and autotrophic model preparation.
 %
@@ -31,7 +31,6 @@ function results = runEngineering(model, expression_data, beta_df, params)
 %   .HCO3Uptake                    default -3.7
 %   .autotrophicOffBiomassRxns     default ["Ec_biomass_SynHetero","Ec_biomass_SynMixo"]
 %   .autotrophicDisableRxns        Synechocystis-specific reactions constrained to zero
-%   .fnorRxn                       default 'FNOR'
 %
 % OCELOT params
 %   .thresholdSource     'tf_expression' or 'z_vector'
@@ -60,6 +59,7 @@ function results = runEngineering(model, expression_data, beta_df, params)
     reg = buildRegulatoryContext(modelWT_FBA, avg_expr_data, beta_df, selectedWTReference, params);
 
     wt = runWTThresholdSelection(modelWT_FBA, biomass_idx, reg, protectedRxnIdx, params);
+    
     [best_threshold, best_idx, best_thr_value] = selectBestThreshold( ...
         wt.rmse_table, wt.threshold_names, wt.threshold_values, params.thresholdSelection);
 
@@ -97,12 +97,25 @@ function results = runEngineering(model, expression_data, beta_df, params)
         final_results = table();
     end
 
-    if params.validateSingleKOs && ~isempty(final_results)
-        sKO_results = validateSingleKOs(modelWT_FBA, biomass_idx, prod_idx, ...
-            biomassWT_FBA, solProd_FBA.f, reg.TF_list, z0, WT_kappa, upsilon, ...
-            final_results, params);
+    tau = max(abs(y_WT_base));
+    if tau == 0
+        tau = 1;
+    end
+
+    if params.validateSingleKOs && ~isempty(resultsTableFilter) && ~isempty(final_results)
+        sKO_results = validateSingleKOs(modelWT_FBA, biomass_idx, prod_idx, biomassWT_FBA, ...
+            reg.TF_list, z0, reg.TF_exp, reg.beta_matrix, reg.gene_to_rxn_map, tau, ...
+            resultsTableFilter, final_results, params);
     else
         sKO_results = table();
+    end
+
+    if params.validateLeaveOneOut && ~isempty(resultsTableFilter) && ~isempty(final_results)
+        loo_results = validateLeaveOneOut(modelWT_FBA, biomass_idx, prod_idx, biomassWT_FBA, ...
+            reg.TF_list, z0, reg.TF_exp, reg.beta_matrix, reg.gene_to_rxn_map, tau, ...
+            resultsTableFilter, final_results, params);
+    else
+        loo_results = table();
     end
 
     results = struct();
@@ -128,6 +141,7 @@ function results = runEngineering(model, expression_data, beta_df, params)
     results.filteredResultsTable  = resultsTableFilter;
     results.validatedResultsTable = final_results;
     results.singleKOResults       = sKO_results;
+    results.leaveOneOutResults    = loo_results;
     results.regulatoryContext     = reg;
     results.upsilon               = upsilon;
     results.y_WT_base             = y_WT_base;
@@ -160,7 +174,6 @@ function params = applyDefaults(params)
     defaults.co2Rxn             = 'EX_co2_e';
     defaults.h2co3TransportRxn  = 'H2CO3_NAt_syn';
     defaults.HCO3Uptake         = -3.7;
-    defaults.fnorRxn            = 'FNOR';
     defaults.autotrophicOffBiomassRxns = ["Ec_biomass_SynHetero","Ec_biomass_SynMixo"];
     defaults.autotrophicDisableRxns = [ ...
         "CBFC2ub","CBFC2pb","CYO1b_syn","CYO1bpp_syn","PSI_2a", ...
@@ -191,35 +204,19 @@ function params = applyDefaults(params)
     end
 
     if strlength(string(params.thresholdSource)) == 0
-        if growthType == "autotrophic"
-            params.thresholdSource = 'z_vector';
-        else
-            params.thresholdSource = 'tf_expression';
-        end
+        params.thresholdSource = 'tf_expression';
     end
 
     if strlength(string(params.thresholdSelection)) == 0
-        if growthType == "autotrophic"
-            params.thresholdSelection = 'RMSE';
-        else
-            params.thresholdSelection = 'Composite';
-        end
+        params.thresholdSelection = 'Composite';
     end
 
     if isempty(params.kappaMin)
-        if growthType == "autotrophic"
-            params.kappaMin = 1e-12;
-        else
-            params.kappaMin = params.kappaStart;
-        end
+        params.kappaMin = 1e-12;
     end
 
     if strlength(string(params.upsilonMode)) == 0
-        if growthType == "autotrophic"
-            params.upsilonMode = 'global_max';
-        else
-            params.upsilonMode = 'wt_ratio';
-        end
+        params.upsilonMode = 'global_max';
     end
 
     required = {'selectedReference','biomassRxn','prodRxn'};
